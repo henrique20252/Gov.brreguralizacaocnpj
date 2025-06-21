@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Envio em Massa WhatsApp</title>
+  <style>
+    body {
+      background-color: #e5ddd5;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: #075e54;
+    }
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .box {
+      flex: 1;
+      min-width: 300px;
+    }
+    h2 {
+      text-align: center;
+      color: #075e54;
+    }
+    textarea, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #25D366;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #128c7e;
+    }
+    .info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h2>Disparador WhatsApp com Gerador de Números</h2>
+  <div class="container">
+    <div class="box">
+      <label for="mensagem">Mensagem:</label>
+      <textarea id="mensagem" rows="4" placeholder="Digite sua mensagem aqui..."></textarea>
+
+      <label for="numeros">Números (um por linha, com DDD e sem traços):</label>
+      <textarea id="numeros" rows="10" placeholder="Ex: 5511999999999\n5511988888888\n..."></textarea>
+
+      <button onclick="enviarMensagem()">📤 Enviar</button>
+      <div class="info">
+        Após o envio, o número usado será removido da lista.
+      </div>
+    </div>
+
+    <div class="box">
+      <label for="bin">BIN (Ex: 1199):</label>
+      <input type="text" id="bin" placeholder="Digite o prefixo (DDD + começo)" />
+
+      <label for="quantidade">Quantidade:</label>
+      <input type="number" id="quantidade" placeholder="Ex: 10" />
+
+      <button onclick="gerarNumeros()">➕ Gerar Números</button>
+
+      <label for="gerados">Números Gerados:</label>
+      <textarea id="gerados" rows="10" placeholder="Números gerados aparecerão aqui..."></textarea>
+      <button onclick="copiarGerados()">📋 Copiar Números Gerados</button>
+
+      <div class="info">
+        Copie e cole os números gerados na lista para enviar mensagens.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function enviarMensagem() {
+      const mensagem = encodeURIComponent(document.getElementById('mensagem').value);
+      const numerosArea = document.getElementById('numeros');
+      let numeros = numerosArea.value.split('\n').filter(n => n.trim() !== '');
+
+      if (mensagem === '' || numeros.length === 0) {
+        alert('Digite uma mensagem e ao menos um número.');
+        return;
+      }
+
+      const numeroAtual = numeros[0];
+      numeros.shift();
+      numerosArea.value = numeros.join('\n');
+
+      const link = `https://wa.me/${numeroAtual}?text=${mensagem}`;
+      window.open(link, '_blank');
+    }
+
+    function gerarNumeros() {
+      const binInput = document.getElementById('bin').value.trim();
+      const quantidade = parseInt(document.getElementById('quantidade').value);
+      const geradosArea = document.getElementById('gerados');
+
+      if (!/^[0-9]{4,}$/.test(binInput)) {
+        alert("BIN inválido. Deve conter pelo menos 4 números (Ex: 1199).");
+        return;
+      }
+
+      if (isNaN(quantidade) || quantidade < 1) {
+        alert("Quantidade inválida.");
+        return;
+      }
+
+      // Adiciona o código do país 55 junto com o BIN digitado
+      const bin = '55' + binInput;
+
+      let novos = [];
+      for (let i = 0; i < quantidade; i++) {
+        let resto = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+        novos.push(bin + resto);
+      }
+
+      geradosArea.value = novos.join('\n');
+    }
+
+    function copiarGerados() {
+      const geradosArea = document.getElementById('gerados');
+      geradosArea.select();
+      document.execCommand('copy');
+      alert('Números copiados para a área de transferência!');
+    }
+  </script>
+</body>
+</html>
